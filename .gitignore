@@ -23,6 +23,9 @@ media
 # KDE directory preferences
 .directory
 
+#Vscode
+.vscode
+
 # Linux trash folder which might appear on any partition or disk
 .Trash-*
 
