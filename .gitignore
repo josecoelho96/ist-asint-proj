@@ -261,3 +261,6 @@ GitHub.sublime-settings
 .history
 
 # End of https://www.gitignore.io/api/macos,linux,python,django,pycharm,sublimetext,visualstudiocode
+
+# Cloud sql proxy
+cloud_sql_proxy
