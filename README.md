@@ -47,6 +47,6 @@ José Coelho
 Xavier Reis
 
 
-   [Running Django in the App Engine Flexible Environment]: <https://cloud.google.com/python/django/flexible-environment?hl=en/>
+   [Running Django in the App Engine Flexible Environment]: <https://cloud.google.com/python/django/flexible-environment?hl=en>
    [Django]: <https://www.djangoproject.com/>
    [Google Cloud Platform]: <https://cloud.google.com/>
