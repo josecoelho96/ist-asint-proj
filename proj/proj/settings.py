@@ -69,16 +69,16 @@ DATABASES = {
         # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
         # 'ENGINE': 'django.db.backends.mysql' instead of the following.
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': '<db-name>',
-        'USER': '<your-database-user>',
-        'PASSWORD': '<your-database-password>',
+        'NAME': 'roomsmanagement',
+        'USER': 'roomsmanagement',
+        'PASSWORD': 'roomsmanagement',
         'PORT': '5432',
     }
 }
 # In the flexible environment, you connect to CloudSQL using a unix socket.
 # Locally, you can use the CloudSQL proxy to proxy a localhost connection
 # to the instance
-DATABASES['default']['HOST'] = '/cloudsql/<your-cloudsql-connection-string>'
+DATABASES['default']['HOST'] = '/cloudsql/ist-roomsmanagement:europe-west2:ist-roomsmanagement-db'
 if os.getenv('GAE_INSTANCE'):
     pass
 else:
@@ -88,8 +88,8 @@ else:
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
-
-# AUTH_PASSWORD_VALIDATORS = [
+'''
+AUTH_PASSWORD_VALIDATORS = [
 
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -104,7 +104,7 @@ else:
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+'''
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -124,8 +124,8 @@ USE_TZ = True
 # [START staticurl]
 # Fill in your cloud bucket and switch which one of the following 2 lines
 # is commented to serve static content from GCS
-# STATIC_URL = 'https://storage.googleapis.com/asint-tests/static/'
-STATIC_URL = '/static/'
+STATIC_URL = 'https://storage.googleapis.com/ist-roomsmanagement/static/'
+# STATIC_URL = '/static/'
 # [END staticurl]
 
 STATIC_ROOT = 'static/'
