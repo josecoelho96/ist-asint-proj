@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+{% if form%}
+    <form action="/search/" method='post'>
+        {% csrf_token %}
+        {{form}}
+        <input type="submit" value="Search"/>
+    </form>
+{% else %}
+    {% if rooms %}
+        <ul>
+        {% for room in rooms %}
+            <li>{{room.name}}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No rooms are available.</p>
+    {% endif %}
+{% endif %}
+
+</body>
+</html>

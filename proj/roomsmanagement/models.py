@@ -8,8 +8,8 @@ class User(models.Model):
     expires_timestamp = models.DateField(max_length=30)
 
 class Room(models.Model):
-    id = models.CharField(max_length=30, primary_key=True)
-    name = models.CharField(max_length=30)
+    id = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255)
 
 class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
