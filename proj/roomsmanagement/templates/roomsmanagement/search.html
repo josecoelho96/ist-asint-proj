@@ -10,11 +10,18 @@
     </form>
 {% else %}
     {% if rooms %}
-        <ul>
+        <table>
+            <tr>
+                <th>Room name</th>
+                <th>Check in</th> 
+            </tr>
         {% for room in rooms %}
-            <li>{{room.name}}</li>
+            <tr>
+                <td>{{ room.name }}</td>
+                <td><a href="/checkin/{{ room.id }}">Check-in</a></td> 
+            </tr>
         {% endfor %}
-        </ul>
+        </table>
     {% else %}
         <p>No rooms are available.</p>
     {% endif %}

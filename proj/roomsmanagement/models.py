@@ -1,15 +1,21 @@
 from django.db import models
 
+
 class User(models.Model):
-    ist_id = models.CharField(max_length=30, primary_key=True)
-    name = models.CharField(max_length=30)
-    refresh_token = models.CharField(max_length=30)
-    access_token = models.CharField(max_length=30)
-    expires_timestamp = models.DateField(max_length=30)
+    ist_id = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255)
+    refresh_token = models.CharField(max_length=255)
+    access_token = models.CharField(max_length=255)
+    expires_timestamp = models.DateField()
+
 
 class Room(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
 
 class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
