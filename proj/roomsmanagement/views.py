@@ -22,7 +22,7 @@ def home(request):
 
     context = {'campi': pre}'''
 
-    return render(request, 'roomsmanagement/home.html', context)
+    return render(request, 'roomsmanagement/index.html', context)
 
 
 def update_db(request):

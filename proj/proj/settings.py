@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1#b*mkk-f6c6sre5!#&5089(a@g-)1%c&*ak&-_m^h-*e-jf09'
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -68,17 +68,17 @@ DATABASES = {
     'default': {
         # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
         # 'ENGINE': 'django.db.backends.mysql' instead of the following.
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'roomsmanagement',
-        'USER': 'roomsmanagement',
-        'PASSWORD': 'roomsmanagement',
-        'PORT': '5432',
+        'ENGINE': os.environ['DJANGO_DB_ENGINE'],
+        'NAME': os.environ['DJANGO_DB_NAME'],
+        'USER': os.environ['DJANGO_DB_USER'],
+        'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
+        'PORT': os.environ['DJANGO_DB_PORT'],
     }
 }
 # In the flexible environment, you connect to CloudSQL using a unix socket.
 # Locally, you can use the CloudSQL proxy to proxy a localhost connection
 # to the instance
-DATABASES['default']['HOST'] = '/cloudsql/ist-roomsmanagement:europe-west2:ist-roomsmanagement-db'
+DATABASES['default']['HOST'] = os.environ['DJANGO_DB_HOST']
 if os.getenv('GAE_INSTANCE'):
     pass
 else:
@@ -110,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Portugal'
 
 USE_I18N = True
 
@@ -124,8 +124,8 @@ USE_TZ = True
 # [START staticurl]
 # Fill in your cloud bucket and switch which one of the following 2 lines
 # is commented to serve static content from GCS
-STATIC_URL = 'https://storage.googleapis.com/ist-roomsmanagement/static/'
-# STATIC_URL = '/static/'
+# STATIC_URL = os.environ['DJANGO_STATIC_URL']
+STATIC_URL = '/static/'
 # [END staticurl]
 
 STATIC_ROOT = 'static/'
