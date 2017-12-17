@@ -268,3 +268,9 @@ GitHub.sublime-settings
 
 # Cloud sql proxy
 cloud_sql_proxy
+
+#GAE related
+proj/app.yaml
+
+# Environment variables (local)
+.env_vars
