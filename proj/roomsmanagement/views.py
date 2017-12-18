@@ -1,10 +1,11 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Room, User
-import requests
-from django.http import HttpResponse, JsonResponse
-from .forms import SearchRoomForm
 import time
 import os
+import requests
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse, JsonResponse
+from .forms import SearchRoomForm
+from .models import Room, User, Entry
+from .helper import checkin, get_room_details, checkout
 
 
 def index(request):
@@ -83,8 +84,11 @@ def list_rooms(request):
 
 def room_details(request, room_id):
 
-    room = get_object_or_404(Room, pk=room_id)
-    return render(request, 'roomsmanagement/roomdetails.html', {'room': room})
+    room = get_room_details(room_id)
+    checkout('2222', 'ist181017')
+    #return render(request, 'roomsmanagement/roomdetails.html', {'room': room})
+    return render(request, 'roomsmanagement/room.html', {'room': room})
+
 
 
 def login(request):
