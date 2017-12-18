@@ -21,4 +21,4 @@ class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     check_in = models.DateTimeField(auto_now_add=True)
-    check_out = models.DateTimeField(blank=True)
+    check_out = models.DateTimeField(null=True)
