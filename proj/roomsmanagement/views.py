@@ -1,27 +1,33 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Room, User, Entry
+import time
+import os
 import requests
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from .forms import SearchRoomForm
-import time
+from .models import Room, User, Entry
 from .helper import checkin, get_room_details, checkout
 
-# Create your views here.
 
-
-def home(request):
+def index(request):
 
     #update_link = ''
 
-    context = {'login_url': ''}
-    '''response = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces")
+    # context = {'login_url': ''}
+    # '''response = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces")
     
-    pre = []
+    # pre = []
 
-    for campi in response.json():
-        pre.append(campi['name'])
+    # for campi in response.json():
+    #     pre.append(campi['name'])
 
-    context = {'campi': pre}'''
+    # context = {'campi': pre}'''
+
+    context = {}
+
+    if 'istid' in request.session:
+        context['user'] = request.session['istid']
+    else:
+        context['user'] = None
 
     return render(request, 'roomsmanagement/index.html', context)
 
@@ -86,53 +92,53 @@ def room_details(request, room_id):
 
 
 def login(request):
+    """ Login into fenixedu """
 
-    CLIENT_ID = '1695915081465897'
-    REDIRECT_URI = 'http://localhost:8000/auth'
+    # Following fenixedu authentication flow
+    client_id = os.environ['FENIXEDU_CLIENT_ID']
+    redirect_uri = os.environ['FENIXEDU_REDIRECT_URI']
 
-    REQUEST_URL = 'https://fenix.tecnico.ulisboa.pt/oauth/userdialog?client_id=' + \
-        CLIENT_ID + '&redirect_uri=' + REDIRECT_URI
+    request_url = 'https://fenix.tecnico.ulisboa.pt/oauth/userdialog?client_id=' + \
+        client_id + '&redirect_uri=' + redirect_uri
 
-    return redirect(REQUEST_URL)
+    return redirect(request_url)
 
 
 def auth(request):
+    """ Login into fenixedu (cont) """
 
-    CLIENT_ID = '1695915081465897'
-    REDIRECT_URI = 'http://localhost:8000/auth'
-    CLIENT_SECRET = '8N9y2/ek6iBQui43OsFVzFfBS1O3H/6x5nRu6mkVEJwqNWs/Qy5DRS35ZEWFyTfutBfpT8mXRnVQ8gnEA06TCA=='
+    client_id = os.environ['FENIXEDU_CLIENT_ID']
+    redirect_uri = os.environ['FENIXEDU_REDIRECT_URI']
+    client_secret = os.environ['FENIXEDU_CLIENT_SECRET']
+
+    # get code provided by fenixedu
     code = request.GET.get('code')
 
-    REQ_URL = 'https://fenix.tecnico.ulisboa.pt/oauth/access_token'
+    access_token_request_url = 'https://fenix.tecnico.ulisboa.pt/oauth/access_token'
 
-    PARAMS = {'client_id': CLIENT_ID, 'client_secret': CLIENT_SECRET,
-              'redirect_uri': REDIRECT_URI, 'code': code, 'grant_type': 'authorization_code'}
+    request_data = {'client_id': client_id, 'client_secret': client_secret,
+              'redirect_uri': redirect_uri, 'code': code, 'grant_type': 'authorization_code'}
 
-    r = requests.post(REQ_URL, data=PARAMS)
+    request_access_token = requests.post(access_token_request_url, data=request_data)
 
-    ACCESS_TOKEN = r.json()['access_token']
-    REFRESH_TOKEN = r.json()['refresh_token']
-    EXPIRES_IN = r.json()['expires_in']
+    if 'error' in request_access_token.json():
+        # TODO: Fix this! Make an error page!
+        return HttpResponse('An error occured!')
+    else:
+        access_token = request_access_token.json()['access_token']
+        refresh_token = request_access_token.json()['refresh_token']
+        token_expires =  request_access_token.json()['expires_in']
 
+        params = {'access_token': access_token}
+        request_info = requests.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person', params=params)
 
-# class User(models.Model):
-#     ist_id = models.CharField(max_length=30, primary_key=True)
-#     name = models.CharField(max_length=30)
-#     refresh_token = models.CharField(max_length=30)
-#     access_token = models.CharField(max_length=30)
-#     expires_timestamp = models.DateField(max_length=30)
+        # TODO: ERROR CHECK!
+        username = request_info.json()['username']
+        # save everything into session
 
-    params = {'access_token': ACCESS_TOKEN}
+        request.session['access_token'] = access_token
+        request.session['refresh_token'] = refresh_token
+        request.session['expires'] = token_expires
+        request.session['istid'] = username
 
-    r = requests.get(
-        'https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person', params=params)
-
-    username = r.json()['username']
-    name = r.json()['name']
-
-    user = User(ist_id=username, name=name, refresh_token=REFRESH_TOKEN,
-                access_token=ACCESS_TOKEN, expires_timestamp=time.strftime("%Y-%m-%d"))
-
-    user.save()
-
-    return HttpResponse(name)
+        return redirect( 'index' )
