@@ -9,12 +9,22 @@ class User(models.Model):
     expires_timestamp = models.DateField()
 
 
+class Space(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255)
+    parent_id = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return self.id + ':' + self.name
+
+
 class Room(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255)
+    parent_id = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.name
+        return self.id + ':' + self.name
 
 
 class Entry(models.Model):
