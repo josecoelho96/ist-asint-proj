@@ -1,31 +1,35 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "roomsmanagement/base.html" %}
 
-{% if form%}
-    <form action="/search/" method='post'>
-        {% csrf_token %}
-        {{form}}
-        <input type="submit" value="Search"/>
-    </form>
-{% else %}
-    {% if rooms %}
-        <table>
-            <tr>
-                <th>Room name</th>
-                <th>Check in</th> 
-            </tr>
-        {% for room in rooms %}
-            <tr>
-                <td>{{ room.name }}</td>
-                <td><a href="/checkin/{{ room.id }}">Check-in</a></td> 
-            </tr>
-        {% endfor %}
-        </table>
-    {% else %}
-        <p>No rooms are available.</p>
-    {% endif %}
-{% endif %}
+{% block content %}
+<div class="section">
+    <div class="container">
+        {% if rooms %}
+        <h3 class="title">Rooms available</h3>
+        <p class="category">Search term: {{ request.GET.room }}</p>
+        <table class="table">
+            <tbody>
+            {% for room_id, room_info in rooms.items %}
+            <div class="room">
+                <tr>
+                    <td>
+                        <a href="#"><h6>{{room_info.name}}</h6></a>
+                        <p> {{ room_info.parents|join:" > " }} </p>
+                    </td>
+                    <td>
+                        <a href="#">
+                            <button class="btn btn-primary btn-simple btn-lg">Check-in</button>
+                        </a>
+                    </td>
+                </tr>
+            </div>
+            {% endfor %}
+            </tbody>
+        </table> 
+        {% else %}
+        <h3 class="title">No rooms were found.</h3>
+        <p class="category">Search term: {{ request.GET.room }}</p>
+        {% endif %}
+    </div>
+</div>
 
-</body>
-</html>
+{% endblock %}
