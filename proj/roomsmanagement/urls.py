@@ -3,12 +3,11 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^updatedb$', views.update_db, name='update_db'),
     url(r'^$', views.index, name='index'),
-    url(r'^update_db/$', views.update_db),
-    url(r'^list_rooms/$', views.list_rooms),
-    url(r'^search/$', views.search),
-    url(r'^checkin/(?P<room_id>[0-9]+)/$', views.room_details),
-    url(r'^login/$', views.login),
-    url(r'^auth/$', views.auth),
-
+    url(r'^login$', views.login, name='login'),
+    url(r'^auth$', views.auth, name='auth'),
+    url(r'^logout$', views.logout, name='logout'),
+    url(r'^profile$', views.profile, name='profile'),
+    url(r'^search$', views.search, name='search'),
 ]
