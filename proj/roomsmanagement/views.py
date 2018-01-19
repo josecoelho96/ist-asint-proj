@@ -93,6 +93,10 @@ def auth(request):
         names = full_name.split()
         request.session['display_name'] = ' '.join([names[0], names[-1]])
 
+        if not User.objects.filter(ist_id=username).exists():
+            user = User(ist_id = username, name=full_name)
+            user.save()
+            
         return redirect( 'index' )
 
 def logout(request):
@@ -127,3 +131,24 @@ def search(request):
         
     context = {'rooms': rooms_list}
     return render(request, 'roomsmanagement/search.html', context)
+
+
+
+def checkin(request):
+    room_id = request.POST.get('room', '')
+    user_id =  request.session['ist_id']
+
+    # TODO: Remove user from previous checkin room
+    try:
+        room = Room.objects.get(pk=room_id)
+        try:
+            user = User.objects.get(pk=user_id)
+            entry = Entry(user = user, room = room)
+            entry.save()
+        except User.DoesNotExist:
+            return HttpResponse('user not found')    
+    except Room.DoesNotExist:
+        return HttpResponse('room 404')
+    
+    return HttpResponse('its somethin...')    
+    

@@ -16,9 +16,13 @@
                         <p> {{ room_info.parents|join:" > " }} </p>
                     </td>
                     <td>
-                        <a href="#">
-                            <button class="btn btn-primary btn-simple btn-lg">Check-in</button>
-                        </a>
+                        {% if request.session.ist_id %}
+                            <form class="form" method="post" action="{% url 'checkin' %}">
+                                {% csrf_token %}
+                                <input name="room" type="hidden" value={{ room_id }}  />
+                                <input type="submit" value="Check-in" class="btn btn-primary btn-simple btn-lg" />
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             </div>

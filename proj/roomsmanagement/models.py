@@ -4,9 +4,7 @@ from django.db import models
 class User(models.Model):
     ist_id = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255)
-    refresh_token = models.CharField(max_length=255)
-    access_token = models.CharField(max_length=255)
-    expires_timestamp = models.DateField()
+    # ENHANCEMENT: Photos and stuff
 
 
 class Space(models.Model):
