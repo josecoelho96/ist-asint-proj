@@ -1,100 +1,48 @@
 import time
 import os
 import requests
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
-from .forms import SearchRoomForm
-from .models import Room, User, Entry
-from .helper import checkin, get_room_details, checkout
-
-
-def index(request):
-
-    #update_link = ''
-
-    # context = {'login_url': ''}
-    # '''response = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces")
-    
-    # pre = []
-
-    # for campi in response.json():
-    #     pre.append(campi['name'])
-
-    # context = {'campi': pre}'''
-
-    context = {}
-
-    if 'istid' in request.session:
-        context['user'] = request.session['istid']
-    else:
-        context['user'] = None
-
-    return render(request, 'roomsmanagement/index.html', context)
+from .models import Room, Space, User, Entry
 
 
 def update_db(request):
-    room = Room(id='1111', name='sala1')
-    room.save()
-    room = Room(id='2222', name='sala2')
-    room.save()
-    room = Room(id='3333', name='sala3')
-    room.save()
+    # TODO: ERROR CHECKING, LOCK ACCESS, SUITABLE RESPONSE
+    BASE_URL = 'https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces/'
+    ids_to_explore = []
+
+    # get campi information
+    response = requests.get(BASE_URL).json()    
+    for element in response:
+        space = Space(id = element['id'], name = element['name'], parent_id = None)
+        space.save()
+        ids_to_explore.append(element['id'])
+    
+    # get data from all campi
+    for id in ids_to_explore:
+        response = requests.get(BASE_URL + id).json()
+        # loop on entire list
+        for element in response['containedSpaces']:
+            # check if it's a room and if the room has a name
+            if element['type'] == 'ROOM' and element['name']:
+                # the parent is the last id requested
+                room = Room(id = element['id'], name = element['name'], parent_id = id)
+                room.save()
+            elif element['type'] != 'ROOM':
+                space = Space(id = element['id'], name = element['name'], parent_id = id)
+                space.save()
+                ids_to_explore.append(element['id'])
+
     return HttpResponse('done')
 
-    '''response = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces")
 
-    rooms = {}
-    ids_to_explore = []
-    
-    for piece in response.json():
-        ids_to_explore.append(piece['id'])
-    
-    for id in ids_to_explore:
-        response = requests.get("https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces/" + id)
-        space = response.json()
-        for contained_space in space['containedSpaces']:
-            if contained_space['type'] == 'ROOM' and contained_space['name']:
-                room = Room(id = contained_space['id'], name = contained_space['name'])
-                room.save()
-            else:
-                ids_to_explore.append(contained_space['id'])'''
-
-
-def search(request):
-    if request.method == 'POST':
-        form = SearchRoomForm(request.POST)
-        if form.is_valid():
-            data = request.POST
-            rooms = Room.objects.filter(
-                name__icontains=data.__getitem__('room_name'))
-            return render(request, 'roomsmanagement/search.html', {'rooms': rooms})
-
-    else:
-        form = SearchRoomForm()
-    return render(request, 'roomsmanagement/search.html', {'form': form})
-
-
-def list_rooms(request):
-    rooms = Room.objects.all()
-
-    context = {'rooms': rooms}
-
-    return render(request, 'roomsmanagement/listrooms.html', context)
-
-
-def room_details(request, room_id):
-
-    room = get_room_details(room_id)
-    checkout('2222', 'ist181017')
-    #return render(request, 'roomsmanagement/roomdetails.html', {'room': room})
-    return render(request, 'roomsmanagement/room.html', {'room': room})
-
-
+def index(request):
+    return render(request, 'roomsmanagement/index.html')
 
 def login(request):
+    # TODO: Optimize flow and error checking
     """ Login into fenixedu """
 
-    # Following fenixedu authentication flow
     client_id = os.environ['FENIXEDU_CLIENT_ID']
     redirect_uri = os.environ['FENIXEDU_REDIRECT_URI']
 
@@ -105,8 +53,7 @@ def login(request):
 
 
 def auth(request):
-    """ Login into fenixedu (cont) """
-
+    # TODO: Optimize flow and error checking
     client_id = os.environ['FENIXEDU_CLIENT_ID']
     redirect_uri = os.environ['FENIXEDU_REDIRECT_URI']
     client_secret = os.environ['FENIXEDU_CLIENT_SECRET']
@@ -121,7 +68,8 @@ def auth(request):
 
     request_access_token = requests.post(access_token_request_url, data=request_data)
 
-    if 'error' in request_access_token.json():
+    # check if no errors were raised
+    if request_access_token.status_code != 200 or 'error' in request_access_token.json():
         # TODO: Fix this! Make an error page!
         return HttpResponse('An error occured!')
     else:
@@ -132,13 +80,133 @@ def auth(request):
         params = {'access_token': access_token}
         request_info = requests.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person', params=params)
 
-        # TODO: ERROR CHECK!
+        # get user info
         username = request_info.json()['username']
-        # save everything into session
+        full_name = request_info.json()['name']
 
+        # save everything into session
         request.session['access_token'] = access_token
         request.session['refresh_token'] = refresh_token
         request.session['expires'] = token_expires
-        request.session['istid'] = username
+        request.session['ist_id'] = username
+        request.session['full_name'] = full_name
+        request.session['checkedin'] = None        
+        names = full_name.split()
+        request.session['display_name'] = ' '.join([names[0], names[-1]])
 
+        if not User.objects.filter(ist_id=username).exists():
+            user = User(ist_id = username, name=full_name)
+            user.save()
+            
         return redirect( 'index' )
+
+def logout(request):
+    # TODO: Complete logout flow
+    request.session.flush()
+    return redirect('index')
+
+def profile(request):
+    return HttpResponse('user details')
+
+def search(request):
+
+    room = request.GET.get('room', '')
+
+    # Look for all rooms that contains the room name inserted before 
+    rooms = Room.objects.filter(name__icontains=room)
+    rooms_list = {}
+
+    for room in rooms:
+        room_info = {}
+        parent_spaces = []
+
+        room_info['name'] = room.name
+        parent_space_id = room.parent_id
+        while parent_space_id != None:
+            parent_space = Space.objects.get(id=parent_space_id)
+            parent_spaces.insert(0, parent_space.name)
+            parent_space_id = parent_space.parent_id
+
+        room_info['parents'] = parent_spaces
+        rooms_list[room.id] = room_info
+        
+    context = {'rooms': rooms_list}
+    return render(request, 'roomsmanagement/search.html', context)
+
+
+
+def checkin(request):
+    room_id = request.POST.get('room', '')
+    
+
+    # TODO:      room_id = request.session.get('checkedin', '')       
+    user_id =  request.session['ist_id']
+
+    # TODO: Remove user from previous checkin room
+    try:
+        room = Room.objects.get(pk=room_id)
+        try:
+            user = User.objects.get(pk=user_id)
+            entry = Entry(user = user, room = room)
+            entry.save()
+            request.session['checkedin'] = room_id      
+        except User.DoesNotExist:
+            # TODO:
+            return HttpResponse('user not found')    
+    except Room.DoesNotExist:
+        # TODO:
+        return HttpResponse('room 404')
+    
+    return redirect('room_details')    
+
+
+def room_details(request):
+
+    room_id = request.session.get('checkedin', '')       
+
+    if room_id:
+        # Checkedin, show details
+
+        details={}
+
+        try:
+            #GET ROOM NAME
+            room = Room.objects.get(pk=room_id)
+
+            details['name'] = room.name
+            details['id'] = room_id
+
+            # GET LOGGED USERS IN ROOM
+            details['logged_users'] = []
+
+            try:
+                entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
+                
+                for entry in entries:
+                    details['logged_users'].append(entry.user.name)
+
+            except Entry.DoesNotExist:
+                # TODO:
+                return HttpResponse('Something went wrong :c')
+            
+        except Room.DoesNotExist:
+            # TODO:
+            return HttpResponse('Wrong room!')
+    else:
+        # Not checkedin!
+        # TODO: 
+        return HttpResponse('You must be checkedin!')
+
+    context = {'room': details}
+    return render(request, 'roomsmanagement/room.html', context)
+
+
+# # CALL IT WHEN YOU WANT TO CHECKOUT A USER IN A ROOM
+# # NOT IMPLEMENTED: CHECK IF USER EXISTS, CHECK IF ROOM EXISTS, CHECK IN CHECK_OUT IS NULL
+# def checkout(room_id, user_id):
+#     try:
+#         entry = Entry.objects.get(user=user_id, room = room_id)
+#         entry.check_out = str(datetime.datetime.now())
+#         entry.save()
+#     except Entry.DoesNotExist:
+#         pass

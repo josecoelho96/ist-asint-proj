@@ -1,25 +1,30 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "roomsmanagement/base.html" %}
 
-{% if room %}
-    {%if room.name %}
-        <h2>ROOM NAME</h2>
-        <p>{{room.name}}</p>
-    {% else %}
-        <p>Room name not found.</p>
-    {% endif %}
-    {%if room.logged_users %}
-        <h2>LOGGED USERS</h2>
-        {% for user in room.logged_users %}
-            <p>{{user.name}}</p>
-        {% endfor %}
-    {% else %}
-        <p>LOGGED USERS NOT FOUND.</p>
-    {% endif %}
-{% else %}
-    <p>ERROR.</p>
-{% endif %}
+{% block content %}
+<div class="section">
+    <div class="container">
+        {% if room %}
+        <h3 class="title">{{room.name}}</h3>
+        <p class="category">Logged users</p>
+ 
+        <table class="table">
+            <tbody>
 
-</body>
-</html>
+            {% for user in room.logged_users %}
+            <div class="room">
+                <tr>
+                    <td>
+                        <h6>{{ user }}</h6>
+                    </td>
+                </tr>
+            </div>
+            {% endfor %}
+            </tbody>
+        </table> 
+        {% else %}
+        <h3 class="title">No Hehe.</h3>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

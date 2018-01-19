@@ -33,6 +33,10 @@ DB password: roomsmanagement
 
 GCS Bucket: ist-roomsmanagement
 
+Configure CORS on GCS bucket
+```shell
+gsutil cors set cors-config.json gs://ist-roomsmanagement/
+```
 
 ### Details
 Fall Semester of 2017/2018.

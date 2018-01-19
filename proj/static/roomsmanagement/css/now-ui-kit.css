@@ -4268,8 +4268,8 @@ Created using IcoMoon - icomoon.io
 
 @font-face {
     font-family: 'Nucleo Outline';
-    src: url("../fonts/nucleo-outline.eot");
-    src: url("../fonts/nucleo-outline.eot") format("embedded-opentype"), url("../fonts/nucleo-outline.woff2") format("woff2"), url("../fonts/nucleo-outline.woff") format("woff"), url("../fonts/nucleo-outline.ttf") format("truetype");
+    src: url("fonts/nucleo-outline.eot");
+    src: url("fonts/nucleo-outline.eot") format("embedded-opentype"), url("fonts/nucleo-outline.woff2") format("woff2"), url("fonts/nucleo-outline.woff") format("woff"), url("fonts/nucleo-outline.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
@@ -5489,7 +5489,7 @@ Created using IcoMoon - icomoon.io
 }
 
 .section {
-    padding: 100px 0;
+    padding: 70px 0;
     position: relative;
     background: #FFFFFF;
 }
@@ -5551,7 +5551,7 @@ Created using IcoMoon - icomoon.io
     transform: translate(-50%, -50%);
     text-align: center;
     padding: 0 15px;
-    color: #2c2c2c;
+    color: #FFFFFF;
     width: 100%;
     max-width: 880px;
 }
@@ -5562,7 +5562,7 @@ Created using IcoMoon - icomoon.io
 }
 
 .page-header.page-header-small {
-    height: 30vh;
+    height: 60vh;
     max-height: 440px;
 }
 
@@ -5786,10 +5786,6 @@ Created using IcoMoon - icomoon.io
     top: 68%;
     right: 12%;
 }
-
-/* Custom */
-
-/* Custom */
 
 [data-background-color="orange"] {
     background-color: #e95e38;

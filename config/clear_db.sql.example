@@ -1,0 +1,2 @@
+DROP DATABASE <db_name>;
+DROP USER <db_user>;
