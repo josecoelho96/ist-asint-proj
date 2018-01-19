@@ -1,0 +1,30 @@
+{% extends "roomsmanagement/base.html" %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        {% if room %}
+        <h3 class="title">{{room.name}}</h3>
+        <p class="category">Logged users</p>
+ 
+        <table class="table">
+            <tbody>
+
+            {% for user in room.logged_users %}
+            <div class="room">
+                <tr>
+                    <td>
+                        <h6>{{ user }}</h6>
+                    </td>
+                </tr>
+            </div>
+            {% endfor %}
+            </tbody>
+        </table> 
+        {% else %}
+        <h3 class="title">No Hehe.</h3>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
