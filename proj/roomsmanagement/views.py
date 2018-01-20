@@ -3,7 +3,8 @@ import os
 import requests
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
-from .models import Room, Space, User, Entry
+from .models import Room, Space, User, Entry, Message, Recipient
+from django.utils.timezone import now
 
 
 def update_db(request):
@@ -210,3 +211,30 @@ def room_details(request):
 #         entry.save()
 #     except Entry.DoesNotExist:
 #         pass
+
+def sendMessage(request):
+
+    room_id = request.POST.get('room', '')
+    content = request.POST.get('content', '')
+    
+    # LOOP OVER ALL USERS AND REGISTER IN DATABASE
+    try:
+        entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
+
+    except Entry.DoesNotExist:
+        # TODO:
+        return HttpResponse('Something went wrong :c')
+
+    try:
+        room = Room.objects.get(pk=room_id)
+        message = Message(room = room, timestamp = now(), content=content)
+        message.save()
+
+        for entry in entries:
+            recipient = Recipient(user=entry.user, message = message)
+            recipient.save()
+ 
+    except Room.DoesNotExist:
+        # TODO:
+        return HttpResponse('room 404')
+    
