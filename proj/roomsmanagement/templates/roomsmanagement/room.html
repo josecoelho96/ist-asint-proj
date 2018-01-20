@@ -5,11 +5,9 @@
     <div class="container">
         {% if room %}
         <h3 class="title">{{room.name}}</h3>
-        <p class="category">Logged users</p>
- 
+        <p class="category">Logged users</p> 
         <table class="table">
             <tbody>
-
             {% for user in room.logged_users %}
             <div class="room">
                 <tr>
@@ -21,8 +19,26 @@
             {% endfor %}
             </tbody>
         </table> 
+        <p class="category">Messages</p> 
+        <table class="table">
+            <tbody>
+            <div class="room">
+                <tr>
+                    <td>
+                        <h6>Uhh...</h6>
+                    </td>
+                </tr>
+            </div>
+            </tbody>
+        </table> 
+
+        <p class="category">Check-out</p> 
+        <form class="form" method="post" action="{% url 'checkout' %}">
+            {% csrf_token %}
+            <input type="submit" value="Check-out" class="btn btn-primary btn-round btn-lg" />
+        </form>
         {% else %}
-        <h3 class="title">No Hehe.</h3>
+        <h3 class="title">No room was provided.</h3>
         {% endif %}
     </div>
 </div>
