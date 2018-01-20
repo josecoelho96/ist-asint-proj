@@ -1,0 +1,48 @@
+{% extends "roomsmanagement/base.html" %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        {% if history %}
+        <h3 class="title">History</h3>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>ISTid</th>
+                    <th>Name</th>
+                    <th>Room</th>
+                    <th>Check in</th>
+                    <th>Check out</th>
+                </tr>
+            {% for entry in history %}
+            <div class="room">
+                <tr>
+                    <td>
+                        <p>{{entry.user.ist_id}} </p>
+                    </td>
+                    <td>
+                        <p>{{entry.user.name.split.0}} {{entry.user.name.split|last}} </p>
+                    </td>
+                    <td>
+                        <p>{{entry.room.name}}</p>
+                    </td>
+                    <td>
+                        <p>{{entry.check_in}}</p>
+                    </td>
+                    <td>
+                        {% if entry.check_out%}
+                            <p>{{entry.check_out}}</p>
+                        {% endif %}
+                    </td>
+                </tr>
+            </div>
+            {% endfor %}
+            </tbody>
+        </table> 
+        {% else %}
+        <h3 class="title">No history was found.</h3>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
