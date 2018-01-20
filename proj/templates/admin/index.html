@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <h3 class="title">Rooms occupancy</h3>
+        <p class="category">Overview of occupied rooms</p>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-4 content-center">
+                    <div class="text-center">   
+                        <a href="{% url 'admin_rooms' %}" class="btn btn-primary btn-round btn-lg btn-block">Check rooms occupancy</a>
+                    </div>   
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <h3 class="title">Advanced</h3>
+        <p class="category">Advanced tools</p>
+
+        <div class="container">
+           <div class="col-md-4 content-center">
+                <div class="text-center">
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-4 content-center">
+                    <div class="text-center">   
+                        <a href="{% url 'history' %}" class="btn btn-primary btn-round btn-lg btn-block">Check rooms history</a>
+                    </div>   
+                </div>
+                <div class="col-md-4 content-center">
+                    <a href="{% url 'update_db' %}" class="btn btn-primary btn-round btn-lg btn-block">Update cached database</a>                    
+                </div>
+            </div>
+        </div>    
+    </div>
+</div>
+{% endblock %}

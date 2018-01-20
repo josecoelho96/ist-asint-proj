@@ -3,7 +3,9 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^updatedb$', views.update_db, name='update_db'),
+    url(r'^admin/updatedb$', views.update_db, name='update_db'),
+    url(r'^admin/history$', views.history, name='history'),
+    url(r'^admin/rooms$', views.occupied_rooms, name='admin_rooms'),      
     url(r'^$', views.index, name='index'),
     url(r'^login$', views.login, name='login'),
     url(r'^auth$', views.auth, name='auth'),

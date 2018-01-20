@@ -9,7 +9,13 @@ from .models import Room, Space, User, Entry
 
 
 def update_db(request):
-    # TODO: ERROR CHECKING, LOCK ACCESS, SUITABLE RESPONSE
+    # TODO: ONLY ADMIN CAN DO IT.. ERROR CHECKING, LOCK ACCESS, SUITABLE RESPONSE
+
+    # Delete cached data
+    Room.objects.all().delete()
+    Space.objects.all().delete()
+
+
     BASE_URL = 'https://fenix.tecnico.ulisboa.pt/api/fenix/v1/spaces/'
     ids_to_explore = []
 
@@ -34,8 +40,18 @@ def update_db(request):
                 space = Space(id = element['id'], name = element['name'], parent_id = id)
                 space.save()
                 ids_to_explore.append(element['id'])
-
+    # TODO: MELHORAR
     return HttpResponse('done')
+
+
+def history(request):
+    #TODO: Only admin
+    return HttpResponse('All rooms history')
+
+
+def occupied_rooms(request):
+    #TODO: Only admin
+    return HttpResponse('occupied rooms')
 
 
 def index(request):
@@ -93,8 +109,6 @@ def auth(request):
         request.session['ist_id'] = username
         request.session['full_name'] = full_name
         request.session['checkedin'] = None        
-        names = full_name.split()
-        request.session['display_name'] = ' '.join([names[0], names[-1]])
 
         if not User.objects.filter(ist_id=username).exists():
             user = User(ist_id = username, name=full_name)
