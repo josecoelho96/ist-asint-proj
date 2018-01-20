@@ -12,5 +12,5 @@ urlpatterns = [
     url(r'^search$', views.search, name='search'),
     url(r'^checkin$', views.checkin, name='checkin'),
     url(r'^room$', views.room_details, name='room_details'),
-    
+    url(r'^getText$', views.getText, name='getText'),
 ]

@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from .models import Room, Space, User, Entry, Message, Recipient
 from django.utils.timezone import now
+from django.core import serializers
 
 
 def update_db(request):
@@ -237,4 +238,38 @@ def sendMessage(request):
     except Room.DoesNotExist:
         # TODO:
         return HttpResponse('room 404')
+
+def getText(request):
+    #IR BUSCAR OS DADOS CERTOS
+        # room_id = request.session.get('checkedin', '') 
+        # room = Room.objects.get(pk=room_id)        
+        
+        # user_id = request.session.get('ist_id', '')
+        # user = Recipient.objects.get(pk=user_id)
+        
+
+
+
+    
+
+    # room = Room.objects.get(pk='1691297991622663')
+    # message = Message(room = room, timestamp = now(), content='mensagem1')
+    # message.save()
+    # message = Message(room = room, timestamp = now(), content='mensagem2')
+    # message.save()
+
+    messages = Message.objects.all()
+
+    data = []
+
+    for message in messages:
+        data.append({'date':message.timestamp, 'content': message.content})
+    # PEDREIRO
+    # messageOne=Message(room=1691297991622663)
+    # messageTwo={'date:': now(), 'content':'mensagem 2'}
+    # messages = []
+    # messages.append(messageOne)
+    # messages.append(messageTwo)
+
+    return JsonResponse({'messages':data})
     

@@ -6,7 +6,7 @@
         {% if room %}
         <h3 class="title">{{room.name}}</h3>
         <p class="category">Logged users</p>
- 
+        
         <table class="table">
             <tbody>
 
@@ -24,6 +24,30 @@
         {% else %}
         <h3 class="title">No Hehe.</h3>
         {% endif %}
+        <p class="category">Messages</p>
+        
+        <table class="table" id='messages'>
+            <tbody>
+            
+            {% for message in room.messages %}
+            <div class="message">
+                <tr>
+                    <td>
+                        <h6>{{ message.timestamp }}</h6>
+                    </td>
+                    <td>
+                        <h6>{{ message.content }}</h6>
+                    </td>
+                </tr>
+            </div>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="col-md-4 content-center">
+            <button id="post" class="btn btn-primary btn-round btn-lg btn-block" type="button">
+                Like
+            </button>
+        </div>
     </div>
 </div>
 
