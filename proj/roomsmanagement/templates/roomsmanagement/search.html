@@ -17,7 +17,7 @@
                     </td>
                     <td>
                         {% if request.session.ist_id %}
-                            <form class="form" method="post" action="{% url 'checkin' %}">
+                            <form class="form" method="post" action="{% url 'roomsmanagement:checkin' %}">
                                 {% csrf_token %}
                                 <input name="room" type="hidden" value={{ room_id }}  />
                                 <input type="submit" value="Check-in" class="btn btn-primary btn-simple btn-lg" />

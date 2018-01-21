@@ -6,6 +6,9 @@ class User(models.Model):
     name = models.CharField(max_length=255)
     # ENHANCEMENT: Photos and stuff
 
+    def __str__(self):
+        return self.ist_id
+
 
 class Space(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
@@ -24,16 +27,22 @@ class Room(models.Model):
     def __str__(self):
         return self.id + ':' + self.name
 
+      
 class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     check_in = models.DateTimeField(auto_now_add=True)
     check_out = models.DateTimeField(null=True)
 
+    def __str__(self):
+        return str(self.user) + ':' + str(self.room) + ':' + str(self.check_in)
+    
+    
 class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=255)
 
+    
 class Recipient(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)

@@ -1,4 +1,4 @@
-{% extends "roomsmanagement/base.html" %}
+{% extends "admin/base.html" %}
 
 {% block content %}
 <div class="section">
@@ -6,6 +6,8 @@
         {% if room %}
         <h3 class="title">{{room.name}}</h3>
         <p class="category">Logged users</p>
+
+        {% if room.logged_users %}
         <table class="table">
             <tbody>
             {% for user in room.logged_users %}
@@ -18,24 +20,23 @@
             </div>
             {% endfor %}
             </tbody>
-        </table> 
+        </table>
+        {% else %}
+            <p class="text-primary">No users are currently logged in this room</p> 
+        {% endif %}
+
         <p class="category">Messages</p> 
-        <table class="table" id='messages'>
-            <tbody>    
-            {% for message in room.messages %}
-            <div class="message">
+        <table class="table">
+            <tbody>
+            <div class="room">
                 <tr>
                     <td>
-                        <h6>{{ message.timestamp }}</h6>
-                    </td>
-                    <td>
-                        <h6>{{ message.content }}</h6>
+                        <h6>Uhh...</h6>
                     </td>
                 </tr>
             </div>
-            {% endfor %}
             </tbody>
-        </table>
+        </table> 
 
         <p class="category">Check-out</p> 
         <form class="form" method="post" action="{% url 'roomsmanagement:checkout' %}">

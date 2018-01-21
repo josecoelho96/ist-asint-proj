@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <h3 class="title">ERROR!</h3>
+        {% if message %}
+            <p class="category">{{message}}</p>    
+        {%else %}
+            <p class="category">Something bad happened :(</p>
+        {%endif %}
+    </div>
+</div>
+
+{% endblock %}
