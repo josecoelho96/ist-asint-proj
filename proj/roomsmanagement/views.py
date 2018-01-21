@@ -258,6 +258,10 @@ def checkout(request):
         else:
             return render(request, 'roomsmanagement/error.html', {'message': 'You must be checked-in in a room to view this page!'})
 
+def history(request):
+    entries = Entry.objects.all()
+    
+    context = {'history': entries}
 
-
+    return render(request, 'roomsmanagement/history.html', context=context)
 
