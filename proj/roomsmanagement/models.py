@@ -27,7 +27,7 @@ class Room(models.Model):
     def __str__(self):
         return self.id + ':' + self.name
 
-
+      
 class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
@@ -36,3 +36,14 @@ class Entry(models.Model):
 
     def __str__(self):
         return str(self.user) + ':' + str(self.room) + ':' + str(self.check_in)
+    
+    
+class Message(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    content = models.CharField(max_length=255)
+
+    
+class Recipient(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE)

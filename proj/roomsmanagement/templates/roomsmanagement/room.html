@@ -5,7 +5,7 @@
     <div class="container">
         {% if room %}
         <h3 class="title">{{room.name}}</h3>
-        <p class="category">Logged users</p> 
+        <p class="category">Logged users</p>
         <table class="table">
             <tbody>
             {% for user in room.logged_users %}
@@ -20,17 +20,22 @@
             </tbody>
         </table> 
         <p class="category">Messages</p> 
-        <table class="table">
-            <tbody>
-            <div class="room">
+        <table class="table" id='messages'>
+            <tbody>    
+            {% for message in room.messages %}
+            <div class="message">
                 <tr>
                     <td>
-                        <h6>Uhh...</h6>
+                        <h6>{{ message.timestamp }}</h6>
+                    </td>
+                    <td>
+                        <h6>{{ message.content }}</h6>
                     </td>
                 </tr>
             </div>
+            {% endfor %}
             </tbody>
-        </table> 
+        </table>
 
         <p class="category">Check-out</p> 
         <form class="form" method="post" action="{% url 'roomsmanagement:checkout' %}">

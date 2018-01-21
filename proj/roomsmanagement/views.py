@@ -1,11 +1,13 @@
 import time
 import datetime
 import os
-import requests
+import requests, json
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
+
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from .models import Room, Space, User, Entry, Message, Recipient
 from django.utils.timezone import now
-from .models import Room, Space, User, Entry
+from django.core import serializers
 
 
 def index(request):
@@ -191,6 +193,56 @@ def room_details(request):
     context = {'room': details}
     return render(request, 'roomsmanagement/room.html', context)
 
+  
+def send_message(request):
+    content = request.POST['content']
+    
+    room_id = request.session.get('checkedin', '')       
+    
+    # LOOP OVER ALL USERS AND REGISTER IN DATABASE
+    try:
+        entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
+
+    except Entry.DoesNotExist:
+        # TODO:
+        return HttpResponse('Something went wrong :c')
+
+    try:
+        #room = Room.objects.get(pk=room_id)
+        #message = Message(room = room, timestamp = now(), content=content)
+        
+        message = Message(timestamp = now(), content=content)
+        message.save()
+
+        for entry in entries:
+            recipient = Recipient(user=entry.user, room=entry.room, message = message)
+            recipient.save()
+ 
+    except Room.DoesNotExist:
+        # TODO:
+        return HttpResponse('room 404')
+    
+    response = {'message':'received'}
+    return JsonResponse(response)
+
+  
+def get_messages(request):
+    #IR BUSCAR OS DADOS CERTOS
+    room_id = request.session.get('checkedin', '') 
+    room = Room.objects.get(pk=room_id)        
+    
+    user_id = request.session.get('ist_id', '')
+    user = User.objects.get(ist_id=user_id) #all messages to user 
+    
+    recipients=Recipient.objects.filter(user=user, room=room)
+
+    data = []
+
+    for recipient in recipients:
+        data.append({'date':recipient.message.timestamp, 'content': recipient.message.content})
+
+    return JsonResponse({'messages':data})
+   
 
 # CALL IT WHEN YOU WANT TO CHECKOUT A USER IN A ROOM
 def checkout(request):
