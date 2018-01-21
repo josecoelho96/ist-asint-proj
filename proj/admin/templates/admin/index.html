@@ -1,0 +1,71 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <h3 class="title">Rooms occupancy</h3>
+        <p class="category">Overview of occupied rooms</p>
+        <div class="container">
+
+        {% if rooms %}
+
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Room</th>
+                    <th>Quantity</th>
+                    <th>Details</th>
+                </tr>
+
+                {% for room in rooms %}
+                    <tr>
+                        <td>{{room.name}}</td>
+                        <td>{{room.occupancy}}</td>
+                        <td>
+                            <form class="form" method="get" action="{% url 'admin:room_details' %}">
+                                <input name="room" type="hidden" value={{ room.id }}  />
+                                <input type="submit" value="Details" class="btn btn-primary btn-simple btn-lg" />
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </div>
+            </tbody>
+        </table>
+
+        {% else %}
+            <p class="category">All rooms are empty at the moment.</p>
+        {% endif %}
+
+        </div>        
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <h3 class="title">Advanced</h3>
+        <p class="category">Advanced tools</p>
+
+        <div class="container">
+           <div class="col-md-4 content-center">
+                <div class="text-center">
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-4 content-center">
+                    <div class="text-center">   
+                        <a href="{% url 'admin:history' %}" class="btn btn-primary btn-round btn-lg btn-block">Check rooms history</a>
+                    </div>   
+                </div>
+                <div class="col-md-4 content-center">
+                    <a href="{% url 'admin:update_db' %}" class="btn btn-primary btn-round btn-lg btn-block">Update cached database</a>                    
+                </div>
+            </div>
+        </div>    
+    </div>
+</div>
+{% endblock %}

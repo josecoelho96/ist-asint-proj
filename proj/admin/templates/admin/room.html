@@ -1,11 +1,13 @@
-{% extends "roomsmanagement/base.html" %}
+{% extends "admin/base.html" %}
 
 {% block content %}
 <div class="section">
     <div class="container">
         {% if room %}
         <h3 class="title">{{room.name}}</h3>
-        <p class="category">Logged users</p> 
+        <p class="category">Logged users</p>
+
+        {% if room.logged_users %}
         <table class="table">
             <tbody>
             {% for user in room.logged_users %}
@@ -18,7 +20,11 @@
             </div>
             {% endfor %}
             </tbody>
-        </table> 
+        </table>
+        {% else %}
+            <p class="text-primary">No users are currently logged in this room</p> 
+        {% endif %}
+
         <p class="category">Messages</p> 
         <table class="table">
             <tbody>

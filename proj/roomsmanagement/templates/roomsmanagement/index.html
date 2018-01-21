@@ -5,7 +5,7 @@
     {% if request.session.ist_id %}
         <div class="container">
             <div class="col-md-4 content-center">
-                <form class="form" method="get" action="{% url 'search' %}">
+                <form class="form" method="get" action="{% url 'roomsmanagement:search' %}">
                     {% comment %} {% csrf_token %} {% endcomment %}
                     <div class="form-group">
                         <input name="room" type="text" value="" placeholder="Search room..." class="form-control" />
@@ -20,7 +20,7 @@
         <div class="container">
             <div class="col-md-4 content-center">
                 <div class="text-center">
-                    <a href="{% url 'login' %}" class="btn btn-primary btn-round btn-lg btn-block">Login using Fenix</a>
+                    <a href="{% url 'roomsmanagement:login' %}" class="btn btn-primary btn-round btn-lg btn-block">Login using Fenix</a>
                 </div>
             </div>
         </div>

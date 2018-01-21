@@ -7,7 +7,7 @@ class User(models.Model):
     # ENHANCEMENT: Photos and stuff
 
     def __str__(self):
-        return self.id + ':' + self.name
+        return self.ist_id
 
 
 class Space(models.Model):
@@ -35,4 +35,4 @@ class Entry(models.Model):
     check_out = models.DateTimeField(null=True)
 
     def __str__(self):
-        return self.user + ':' + self.room + ':' + self.check_in
+        return str(self.user) + ':' + str(self.room) + ':' + str(self.check_in)
