@@ -1,11 +1,12 @@
 import time
 import os
-import requests
+import requests, json
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from .models import Room, Space, User, Entry, Message, Recipient
 from django.utils.timezone import now
 from django.core import serializers
+
 
 
 def update_db(request):
@@ -213,10 +214,10 @@ def room_details(request):
 #     except Entry.DoesNotExist:
 #         pass
 
-def sendMessage(request):
-
-    room_id = request.POST.get('room', '')
-    content = request.POST.get('content', '')
+def send_message(request):
+    content = request.POST['content']
+    
+    room_id = request.session.get('checkedin', '')       
     
     # LOOP OVER ALL USERS AND REGISTER IN DATABASE
     try:
@@ -227,49 +228,37 @@ def sendMessage(request):
         return HttpResponse('Something went wrong :c')
 
     try:
-        room = Room.objects.get(pk=room_id)
-        message = Message(room = room, timestamp = now(), content=content)
+        #room = Room.objects.get(pk=room_id)
+        #message = Message(room = room, timestamp = now(), content=content)
+        
+        message = Message(timestamp = now(), content=content)
         message.save()
 
         for entry in entries:
-            recipient = Recipient(user=entry.user, message = message)
+            recipient = Recipient(user=entry.user, room=entry.room, message = message)
             recipient.save()
  
     except Room.DoesNotExist:
         # TODO:
         return HttpResponse('room 404')
-
-def getText(request):
-    #IR BUSCAR OS DADOS CERTOS
-        # room_id = request.session.get('checkedin', '') 
-        # room = Room.objects.get(pk=room_id)        
-        
-        # user_id = request.session.get('ist_id', '')
-        # user = Recipient.objects.get(pk=user_id)
-        
-
-
-
     
+    response = {'message':'received'}
+    return JsonResponse(response)
 
-    # room = Room.objects.get(pk='1691297991622663')
-    # message = Message(room = room, timestamp = now(), content='mensagem1')
-    # message.save()
-    # message = Message(room = room, timestamp = now(), content='mensagem2')
-    # message.save()
-
-    messages = Message.objects.all()
+def get_messages(request):
+    #IR BUSCAR OS DADOS CERTOS
+    room_id = request.session.get('checkedin', '') 
+    room = Room.objects.get(pk=room_id)        
+    
+    user_id = request.session.get('ist_id', '')
+    user = User.objects.get(ist_id=user_id) #all messages to user 
+    
+    recipients=Recipient.objects.filter(user=user, room=room)
 
     data = []
 
-    for message in messages:
-        data.append({'date':message.timestamp, 'content': message.content})
-    # PEDREIRO
-    # messageOne=Message(room=1691297991622663)
-    # messageTwo={'date:': now(), 'content':'mensagem 2'}
-    # messages = []
-    # messages.append(messageOne)
-    # messages.append(messageTwo)
+    for recipient in recipients:
+        data.append({'date':recipient.message.timestamp, 'content': recipient.message.content})
 
     return JsonResponse({'messages':data})
     
