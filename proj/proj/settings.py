@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'roomsmanagement.apps.RoomsmanagementConfig',
     'admin.apps.AdminConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE_CLASSES = [

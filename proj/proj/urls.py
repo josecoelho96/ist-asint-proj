@@ -19,7 +19,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     url(r'^admin/', include('admin.urls')),
-    url(r'^', include('roomsmanagement.urls')),    
+    url(r'^api/', include('api.urls')),
+    url(r'^', include('roomsmanagement.urls')),  
 ]
 
 # This enables static files to be served from the Gunicorn server
