@@ -125,8 +125,8 @@ USE_TZ = True
 # [START staticurl]
 # Fill in your cloud bucket and switch which one of the following 2 lines
 # is commented to serve static content from GCS
-# STATIC_URL = os.environ['DJANGO_STATIC_URL']
-STATIC_URL = '/static/'
+STATIC_URL = os.environ['DJANGO_STATIC_URL']
+# STATIC_URL = '/static/'
 # [END staticurl]
 
 STATIC_ROOT = 'static/'
