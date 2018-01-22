@@ -6,7 +6,6 @@
         <div class="container">
             <div class="col-md-4 content-center">
                 <form class="form" method="get" action="{% url 'roomsmanagement:search' %}">
-                    {% comment %} {% csrf_token %} {% endcomment %}
                     <div class="form-group">
                         <input name="room" type="text" value="" placeholder="Search room..." class="form-control" />
                     </div>

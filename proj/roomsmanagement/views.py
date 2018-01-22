@@ -2,12 +2,14 @@ import time
 import datetime
 import os
 import requests, json
-from django.shortcuts import render, redirect
+from datetime import datetime
 
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import Room, Space, User, Entry, Message, Recipient
 from django.utils.timezone import now
 from django.core import serializers
+
+from .models import Room, Space, User, Entry, Message, Recipient
 
 
 def index(request):
@@ -27,7 +29,6 @@ def login(request):
 
 
 def auth(request):
-    # TODO: Optimize flow and error checking
     client_id = os.environ['FENIXEDU_CLIENT_ID']
     redirect_uri = os.environ['FENIXEDU_REDIRECT_URI']
     client_secret = os.environ['FENIXEDU_CLIENT_SECRET']
@@ -44,8 +45,8 @@ def auth(request):
 
     # check if no errors were raised
     if request_access_token.status_code != 200 or 'error' in request_access_token.json():
-        # TODO: Fix this! Make an error page!
-        return HttpResponse('An error occured!')
+        return render(request, 'roomsmanagement/error.html')
+
     else:
         access_token = request_access_token.json()['access_token']
         refresh_token = request_access_token.json()['refresh_token']
@@ -87,11 +88,6 @@ def logout(request):
 
     request.session.flush()
     return redirect('roomsmanagement:index')
-
-
-def profile(request):
-    # TODO: Must be completed or deleted
-    return HttpResponse('user details')
 
 
 def search(request):
@@ -233,7 +229,7 @@ def get_messages(request):
             recipients=Recipient.objects.filter(user=user, room=room)
 
             for recipient in recipients:
-                messages.append({'date':recipient.message.timestamp, 'content': recipient.message.content}) 
+                messages.append({'date':recipient.message.timestamp.strftime("%Y-%m-%d %H:%M:%S"), 'content': recipient.message.content}) 
         except User.DoesNotExist:
             return render(request, 'roomsmanagement/error.html')
 

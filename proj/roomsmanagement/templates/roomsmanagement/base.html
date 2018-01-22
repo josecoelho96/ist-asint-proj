@@ -46,7 +46,6 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
                             {% if request.session.ist_id %}
-                                <a class="dropdown-item" href="{% url 'roomsmanagement:profile' %}">User details</a>
                                 <a class="dropdown-item" href="{% url 'roomsmanagement:logout' %}">Logout</a>
                             {% else %}
                                 <a class="dropdown-item" href="{% url 'roomsmanagement:login' %}">Login</a>
@@ -84,5 +83,6 @@
 <script src="{% static 'roomsmanagement/js/bootstrap.min.js' %}" type="text/javascript"></script>
 <!-- Control Center for Now Ui Kit: parallax effects, scripts for the example pages etc -->
 <script src="{% static 'roomsmanagement/js/now-ui-kit.js' %}" type="text/javascript"></script>
-<script src="{% static 'roomsmanagement/js/ajax.js' %}" type="text/javascript"></script>
+{% block javascript %}
+{% endblock %}
 </html>
