@@ -1,12 +1,14 @@
 import requests
+from datetime import datetime
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.utils.timezone import now
 
-from roomsmanagement.models import Entry, Room, Space
+from roomsmanagement.models import Entry, Room, Space, User, Message, Recipient
 
 
 @login_required(login_url='admin:login')
@@ -18,10 +20,7 @@ def index(request):
     
     for entry in entries:
         r = Room.objects.get(pk=entry['room'])
-
         rooms.append({'id':r.id, 'name':r.name, 'occupancy':entry['occupancy']})
-        
-
     
     context = {'rooms': rooms}
     return render(request, 'admin/index.html', context)
@@ -29,7 +28,6 @@ def index(request):
 
 @login_required(login_url='admin:login')
 def update_db(request):
-    # TODO: ERROR CHECKING, LOCK ACCESS, SUITABLE RESPONSE
 
     # Delete cached data
     Room.objects.all().delete()
@@ -112,26 +110,89 @@ def room_details(request):
 
     room_id = request.GET.get('room', '')
 
-    details={}
-
+    room_details={}
     if room_id:
         try:
             #GET ROOM NAME
             room = Room.objects.get(pk=room_id)
-            details['name'] = room.name
-            details['id'] = room_id
+            room_details['name'] = room.name
+            room_details['id'] = room_id
 
             # GET LOGGED USERS IN ROOM
-            details['logged_users'] = []
+            room_details['logged_users'] = []
             try:
                 entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
                 for entry in entries:
-                    details['logged_users'].append(entry.user.name)
+                    room_details['logged_users'].append(entry.user.name)
             except Entry.DoesNotExist:
                 return render(request, 'admin/error.html')
-            
+
+            # get all messages to one room
+            messages = {}
+
+            recipients=Recipient.objects.filter(room=room)
+            for recipient in recipients:
+                if recipient.message.id not in messages:
+                    msg_details = {'date': recipient.message.timestamp, 'content': recipient.message.content}
+                    messages[recipient.message.id] = msg_details
+    
+
         except Room.DoesNotExist:
             return render(request, 'admin/error.html')
 
-    context = {'room':details}
+    context = {'room':room_details, 'messages': messages}
     return render(request, 'admin/room.html', context)
+
+
+def send_message(request):
+
+    print(request.POST.keys())
+    content = request.POST['content']
+    room_id = request.POST['room_id']
+    
+    # LOOP OVER ALL USERS AND REGISTER IN DATABASE
+    try:
+        entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
+
+    except Entry.DoesNotExist:
+        return render(request, 'admin/error.html')
+
+    try:
+        
+        message = Message(timestamp = now(), content=content)
+        message.save()
+
+        for entry in entries:
+            recipient = Recipient(user=entry.user, room=entry.room, message = message)
+            recipient.save()
+ 
+    except Room.DoesNotExist:
+        return render(request, 'admin/error.html')        
+    
+    response = {'message':'Message sent!'}
+    return JsonResponse(response)
+
+
+def get_messages(request):
+
+    room_id = request.GET.get('room', '')
+    room = Room.objects.get(pk=room_id)
+        
+    messages = {}
+
+    recipients=Recipient.objects.filter(room=room)
+    for recipient in recipients:
+        if recipient.message.id not in messages:
+            msg_details = {'date': recipient.message.timestamp.strftime("%Y-%m-%d %H:%M:%S"), 'content': recipient.message.content}
+            messages[recipient.message.id] = msg_details
+
+    logged_users = []
+    try:
+        entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
+        for entry in entries:
+            logged_users.append(entry.user.name)
+    except Entry.DoesNotExist:
+        return render(request, 'admin/error.html')
+ 
+
+    return JsonResponse({'messages':messages, 'users':logged_users})

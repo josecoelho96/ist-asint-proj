@@ -1,14 +1,17 @@
 {% extends "admin/base.html" %}
-
+{% load static %}
 {% block content %}
+{% csrf_token %}
+
 <div class="section">
     <div class="container">
         {% if room %}
         <h3 class="title">{{room.name}}</h3>
+        <input id="room-id" name="content" type="hidden" value="{{room.id}}"/>        
         <p class="category">Logged users</p>
 
         {% if room.logged_users %}
-        <table class="table">
+        <table class="table" id="users">
             <tbody>
             {% for user in room.logged_users %}
             <div class="room">
@@ -25,28 +28,40 @@
             <p class="text-primary">No users are currently logged in this room</p> 
         {% endif %}
 
-        <p class="category">Messages</p> 
-        <table class="table">
-            <tbody>
-            <div class="room">
+        <p class="category">New message</p>
+
+        <div class="col-md-4 content-center">
+            <input id="send-txt" name="content" type="text" value="" placeholder="Message" class="form-control" />
+            <input id="send-btn" type="button" value="Send" class="btn btn-primary btn-round btn-lg btn-block" />
+            <p class="text-primary" id = 'message'></p>
+        </div>
+
+        <p class="category">Message History</p> 
+
+        <table class="table" id='messages'>
+            <tbody>    
+            {% for idx, message in messages.items %}
+            <div class="message">
                 <tr>
                     <td>
-                        <h6>Uhh...</h6>
+                        <h6>{{ message.date|date:'Y-m-d H:i:s' }}</h6>
+                    </td>
+                    <td>
+                        <h6>{{ message.content }}</h6>
                     </td>
                 </tr>
             </div>
+            {% endfor %}
             </tbody>
-        </table> 
+        </table>
 
-        <p class="category">Check-out</p> 
-        <form class="form" method="post" action="{% url 'roomsmanagement:checkout' %}">
-            {% csrf_token %}
-            <input type="submit" value="Check-out" class="btn btn-primary btn-round btn-lg" />
-        </form>
         {% else %}
         <h3 class="title">No room was provided.</h3>
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
+{% block javascript %}
+<script src="{% static 'admin/js/ajax.js' %}" type="text/javascript"></script>
 {% endblock %}

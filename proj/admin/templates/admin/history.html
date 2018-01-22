@@ -27,11 +27,11 @@
                         <p>{{entry.room.name}}</p>
                     </td>
                     <td>
-                        <p>{{entry.check_in}}</p>
+                        <p>{{entry.check_in|date:'Y-m-d H:i:s'}}</p>
                     </td>
                     <td>
                         {% if entry.check_out%}
-                            <p>{{entry.check_out}}</p>
+                            <p>{{entry.check_out|date:'Y-m-d H:i:s'}}</p>
                         {% endif %}
                     </td>
                 </tr>

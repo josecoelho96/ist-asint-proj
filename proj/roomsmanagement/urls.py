@@ -13,6 +13,5 @@ urlpatterns = [
     url(r'^checkin$', views.checkin, name='checkin'),
     url(r'^room$', views.room_details, name='room_details'),
     url(r'^get_messages$', views.get_messages, name='get_messages'),
-    url(r'^send_message$', views.send_message, name='send_message'),
     url(r'^checkout$', views.checkout, name='checkout'),
 ]
