@@ -65,8 +65,8 @@ def auth(request):
         request.session['expires'] = token_expires
         request.session['ist_id'] = username
         request.session['full_name'] = full_name
-        request.session['checkedin'] = None
 
+        # create a new user if it isn't on the database
         if not User.objects.filter(ist_id=username).exists():
             user = User(ist_id = username, name=full_name)
             user.save()
@@ -78,13 +78,11 @@ def logout(request):
     # TODO: Complete logout flow
 
     user_id =  request.session.get('ist_id', '')
-    checked_in = request.session.get('checkedin', '')
     
-    if checked_in:
-        try:
-            Entry.objects.filter(user=user_id, room = checked_in, check_out__isnull=True).update(check_out = now())
-        except Entry.DoesNotExist:
-            return render(request, 'roomsmanagement/error.html')
+    try:
+        Entry.objects.filter(user=user_id, check_out__isnull=True).update(check_out = now())
+    except Entry.DoesNotExist:
+        return render(request, 'roomsmanagement/error.html')
 
     request.session.flush()
     return redirect('roomsmanagement:index')
@@ -120,7 +118,6 @@ def checkin(request):
 
     room_id = request.POST.get('room', '')
     user_id =  request.session.get('ist_id', '')
-    checked_in = request.session.get('checkedin', '')
 
     if not user_id:
         return redirect( 'roomsmanagement:index' )
@@ -128,25 +125,26 @@ def checkin(request):
     if not room_id:
         return render(request, 'roomsmanagement/error.html')
 
+    e = Entry.objects.filter(user=user_id, check_out__isnull=True) 
+    if e.exists():
+        # already checked-in
 
-    if room_id == checked_in:
-        return redirect('roomsmanagement:room_details')
-    
-    if checked_in:
-        try:
-            Entry.objects.filter(user=user_id, room = checked_in, check_out__isnull=True).update(check_out = now())
-            request.session['checkedin'] = None
-            
-        except Entry.DoesNotExist:
-            return render(request, 'roomsmanagement/error.html')
-        
+        if room_id == e[0].room.id:
+            # same room
+            return redirect('roomsmanagement:room_details')
+        else:
+            try:
+                e.update(check_out = now())
+            except Entry.DoesNotExist:
+                return render(request, 'roomsmanagement/error.html')
+
+    # check-in
     try:
         room = Room.objects.get(pk=room_id)
         try:
             user = User.objects.get(pk=user_id)
             entry = Entry(user = user, room = room)
             entry.save()
-            request.session['checkedin'] = room_id      
         except User.DoesNotExist:
             return render(request, 'roomsmanagement/error.html')
     except Room.DoesNotExist:
@@ -157,35 +155,32 @@ def checkin(request):
 
 def room_details(request):
 
-    room_id = request.session.get('checkedin', '')
     ist_id = request.session.get('ist_id', '')
-    if room_id:
-        # Checkedin, show details
+
+    e = Entry.objects.filter(user=ist_id, check_out__isnull=True) 
+
+    if e.exists():
+        # Checked-in, show details
         details={}
+        details['name'] = e[0].room.name
+        details['id'] = e[0].room.id
+
+        # GET LOGGED USERS IN ROOM
+        details['logged_users'] = []
         try:
-            #GET ROOM NAME
-            room = Room.objects.get(pk=room_id)
-            details['name'] = room.name
-            details['id'] = room_id
+            entries = Entry.objects.exclude(check_out__isnull=False).filter(room=e[0].room)
+            for entry in entries:
+                details['logged_users'].append(entry.user.name)
+        except Entry.DoesNotExist:
+            return render(request, 'roomsmanagement/error.html')
+        
+        details['messages'] = []
+        try:
+            user = User.objects.get(ist_id=ist_id) #all messages to user
+            recipients=Recipient.objects.filter(user=user, room=e[0].room)
 
-            # GET LOGGED USERS IN ROOM
-            details['logged_users'] = []
-            try:
-                entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
-                for entry in entries:
-                    details['logged_users'].append(entry.user.name)
-            except Entry.DoesNotExist:
-                return render(request, 'roomsmanagement/error.html')
-            
-            details['messages'] = []
-            try:
-                user = User.objects.get(ist_id=ist_id) #all messages to user
-                recipients=Recipient.objects.filter(user=user, room=room)
-
-                for recipient in recipients:
-                    details['messages'].append({'date':recipient.message.timestamp, 'content': recipient.message.content}) 
-            except User.DoesNotExist:
-                return render(request, 'roomsmanagement/error.html') 
+            for recipient in recipients:
+                details['messages'].append({'date':recipient.message.timestamp, 'content': recipient.message.content}) 
 
         except Room.DoesNotExist:
             return render(request, 'roomsmanagement/error.html')
@@ -202,31 +197,27 @@ def room_details(request):
 
 def get_messages(request):
     #IR BUSCAR OS DADOS CERTOS
-    room_id = request.session.get('checkedin', '') 
     ist_id = request.session.get('ist_id', '')
-    
-    if room_id:
-        # Checkedin, show details
+    e = Entry.objects.filter(user=ist_id, check_out__isnull=True)
+
+    if e.exists():
+        # Checked-in, show details
+
+        # GET LOGGED USERS IN ROOM
+        logged_users = []
+
         try:
-            #GET ROOM NAME
-            room = Room.objects.get(pk=room_id)
-
-            # GET LOGGED USERS IN ROOM
-            logged_users = []
-            try:
-                entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
-                for entry in entries:
-                    logged_users.append(entry.user.name)
-            except Entry.DoesNotExist:
-                return render(request, 'roomsmanagement/error.html')
-        
-        except Room.DoesNotExist:
+            entries = Entry.objects.exclude(check_out__isnull=False).filter(room=e[0].room)
+            for entry in entries:
+                logged_users.append(entry.user.name)
+        except Entry.DoesNotExist:
             return render(request, 'roomsmanagement/error.html')
-
+    
+        # get messages
         messages = []
         try:
             user = User.objects.get(ist_id=ist_id) #all messages to user
-            recipients=Recipient.objects.filter(user=user, room=room)
+            recipients=Recipient.objects.filter(user=user, room=e[0].room)
 
             for recipient in recipients:
                 messages.append({'date':recipient.message.timestamp.strftime("%Y-%m-%d %H:%M:%S"), 'content': recipient.message.content}) 
@@ -245,13 +236,13 @@ def get_messages(request):
 # CALL IT WHEN YOU WANT TO CHECKOUT A USER IN A ROOM
 def checkout(request):
 
-    room_id = request.session.get('checkedin', '')
-    user_id = request.session.get('ist_id', '')
+    ist_id = request.session.get('ist_id', '')
+    e = Entry.objects.filter(user=ist_id, check_out__isnull=True)
 
-    if room_id:
-        # Checkedin, do checkout
+    if e.exists():
+        # Checked-in, do checkout
         try:
-            Entry.objects.filter(user=user_id, room = room_id, check_out__isnull=True).update(check_out = now())
+            Entry.objects.filter(user=ist_id, room = e[0].room, check_out__isnull=True).update(check_out = now())
             request.session['checkedin'] = None
         except Entry.DoesNotExist:
             return render(request, 'roomsmanagement/error.html')
@@ -259,8 +250,8 @@ def checkout(request):
         return redirect('roomsmanagement:index')
         
     else:
-        # no room on session
-        if not user_id:
+        # not checkedin
+        if not ist_id:
             return render(request, 'roomsmanagement/error.html', {'message': 'You must be logged in to view this page!'})
         else:
             return render(request, 'roomsmanagement/error.html', {'message': 'You must be checked-in in a room to view this page!'})

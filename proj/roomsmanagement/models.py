@@ -4,7 +4,6 @@ from django.db import models
 class User(models.Model):
     ist_id = models.CharField(max_length=255, primary_key=True)
     name = models.CharField(max_length=255)
-    # ENHANCEMENT: Photos and stuff
 
     def __str__(self):
         return self.ist_id
