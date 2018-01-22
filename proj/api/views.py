@@ -127,14 +127,89 @@ def admin_room_details(request, room_id):
 
 
 def admin_send_message(request):
-    return JsonResponse({'result': 'success admin_send_message'})
+    content = request.POST.get('content', '')
+    room_id = request.POST.get('room_id', '')
+    
+    if not content or not room_id:
+        response = {'success': False, 'message': 'Wrong parameters'}
+        return JsonResponse(response)
+    else:
 
-def admin_get_messages(request):
-    return JsonResponse({'result': 'success admin_get_messages'})
+        # LOOP OVER ALL USERS AND REGISTER IN DATABASE
+        try:
+            entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
+        
+        except Entry.DoesNotExist:
+            response = {'success': False, 'message': 'An error happened.'}
+            return JsonResponse(response)
+
+        try:
+            message = Message(timestamp = now(), content=content)
+            message.save()
+
+            for entry in entries:
+                recipient = Recipient(user=entry.user, room=entry.room, message = message)
+                recipient.save()
+    
+        except Room.DoesNotExist:
+            response = {'success': False, 'message': 'An error happened.'}
+            return JsonResponse(response)        
+        
+        response = {'success': True}
+        return JsonResponse(response)
+
+def admin_get_messages(request, room_id):
+    room = Room.objects.get(pk=room_id)
+        
+    messages = {}
+
+    recipients=Recipient.objects.filter(room=room)
+    for recipient in recipients:
+        if recipient.message.id not in messages:
+            msg_details = {'date': recipient.message.timestamp.strftime("%Y-%m-%d %H:%M:%S"), 'content': recipient.message.content}
+            messages[recipient.message.id] = msg_details
+    
+    sendMessages = []
+    for id, message in messages.items():
+        sendMessages.append(message)
+
+    logged_users = []
+    try:
+        entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
+        for entry in entries:
+            user = {'id': entry.user.ist_id, 'name': entry.user.name}
+            logged_users.append(user)
+    except Entry.DoesNotExist:
+        response = {'success': False, 'message': 'An error happened.'}
+        return JsonResponse(response)        
+ 
+
+    return JsonResponse({'messages':messages, 'users':logged_users})
+    
+    response = {'success': True, 'messages': sendMessages, 'logged_users':logged_users}
+    return JsonResponse(response)
 
 
-def search(request):
-    return JsonResponse({'result': 'success search'})
+def search(request, query):
+    # Look for all rooms that contains the room name inserted before 
+    rooms = Room.objects.filter(name__icontains=query)
+    rooms_list = {}
+
+    for room in rooms:
+        room_info = {}
+        parent_spaces = []
+
+        room_info['name'] = room.name
+        parent_space_id = room.parent_id
+        while parent_space_id != None:
+            parent_space = Space.objects.get(id=parent_space_id)
+            parent_spaces.insert(0, parent_space.name)
+            parent_space_id = parent_space.parent_id
+
+        room_info['parents'] = parent_spaces
+        rooms_list[room.id] = room_info
+        
+    return JsonResponse({'result': True, 'rooms': rooms_list})
 
 def room_details(request):
     return JsonResponse({'result': 'success room_details'})
