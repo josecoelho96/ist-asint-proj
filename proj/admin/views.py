@@ -146,7 +146,6 @@ def room_details(request):
 
 def send_message(request):
 
-    print(request.POST.keys())
     content = request.POST['content']
     room_id = request.POST['room_id']
     

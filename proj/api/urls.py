@@ -11,9 +11,9 @@ urlpatterns = [
     url(r'^admin/rooms$', views.admin_rooms_occupancy, name='rooms_occupancy'),
     url(r'^admin/room/(?P<room_id>[0-9]+)$', views.admin_room_details, name='admin_room_details'),
     url(r'^admin/send_message$', views.admin_send_message, name='admin_send_message'),
-    url(r'^admin/get_messages$', views.admin_get_messages, name='admin_get_messages'),
+    url(r'^admin/get_messages/(?P<room_id>[0-9]+)$', views.admin_get_messages, name='admin_get_messages'),
 
-    url(r'^user/search$', views.search, name='search'),
+    url(r'^user/search/(?P<query>\d{5}$', views.search, name='search'),
     url(r'^user/checkin$', views.checkin, name='checkin'),
     url(r'^user/room$', views.room_details, name='user_room_details'),
     url(r'^user/get_messages$', views.get_messages, name='user_get_messages'),
