@@ -6,7 +6,7 @@
         {% if room %}
         <h3 class="title">{{room.name}}</h3>
         <p class="category">Logged users</p>
-        <table class="table">
+        <table class="table" id='users'>
             <tbody>
             {% for user in room.logged_users %}
             <div class="room">

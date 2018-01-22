@@ -180,7 +180,17 @@ def room_details(request):
                     details['logged_users'].append(entry.user.name)
             except Entry.DoesNotExist:
                 return render(request, 'roomsmanagement/error.html')
-        
+            
+            details['messages'] = []
+            try:
+                user = User.objects.get(ist_id=ist_id) #all messages to user
+                recipients=Recipient.objects.filter(user=user, room=room)
+
+                for recipient in recipients:
+                    details['messages'].append({'date':recipient.message.timestamp, 'content': recipient.message.content}) 
+            except User.DoesNotExist:
+                return render(request, 'roomsmanagement/error.html') 
+
         except Room.DoesNotExist:
             return render(request, 'roomsmanagement/error.html')
     else:
@@ -229,19 +239,43 @@ def send_message(request):
 def get_messages(request):
     #IR BUSCAR OS DADOS CERTOS
     room_id = request.session.get('checkedin', '') 
-    room = Room.objects.get(pk=room_id)        
+    ist_id = request.session.get('ist_id', '')
     
-    user_id = request.session.get('ist_id', '')
-    user = User.objects.get(ist_id=user_id) #all messages to user 
+    if room_id:
+        # Checkedin, show details
+        try:
+            #GET ROOM NAME
+            room = Room.objects.get(pk=room_id)
+
+            # GET LOGGED USERS IN ROOM
+            logged_users = []
+            try:
+                entries = Entry.objects.exclude(check_out__isnull=False).filter(room=room_id)
+                for entry in entries:
+                    logged_users.append(entry.user.name)
+            except Entry.DoesNotExist:
+                return render(request, 'roomsmanagement/error.html')
+        
+        except Room.DoesNotExist:
+            return render(request, 'roomsmanagement/error.html')
+
+        messages = []
+        try:
+            user = User.objects.get(ist_id=ist_id) #all messages to user
+            recipients=Recipient.objects.filter(user=user, room=room)
+
+            for recipient in recipients:
+                messages.append({'date':recipient.message.timestamp, 'content': recipient.message.content}) 
+        except User.DoesNotExist:
+            return render(request, 'roomsmanagement/error.html')
+
+    else:
+        if not ist_id:
+            return render(request, 'roomsmanagement/error.html', {'message': 'You must be logged in to view this page!'})
+        else:
+            return render(request, 'roomsmanagement/error.html', {'message': 'You must be checked-in in a room to view this page!'})
     
-    recipients=Recipient.objects.filter(user=user, room=room)
-
-    data = []
-
-    for recipient in recipients:
-        data.append({'date':recipient.message.timestamp, 'content': recipient.message.content})
-
-    return JsonResponse({'messages':data})
+    return JsonResponse({'messages':messages, 'users':logged_users})
    
 
 # CALL IT WHEN YOU WANT TO CHECKOUT A USER IN A ROOM
