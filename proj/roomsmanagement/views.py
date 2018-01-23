@@ -243,14 +243,13 @@ def checkout(request):
         # Checked-in, do checkout
         try:
             Entry.objects.filter(user=ist_id, room = e[0].room, check_out__isnull=True).update(check_out = now())
-            request.session['checkedin'] = None
         except Entry.DoesNotExist:
             return render(request, 'roomsmanagement/error.html')
         
         return redirect('roomsmanagement:index')
         
     else:
-        # not checkedin
+        # not checked-in
         if not ist_id:
             return render(request, 'roomsmanagement/error.html', {'message': 'You must be logged in to view this page!'})
         else:
